@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Long Codo – ใบกำกับการรับ/ส่งพัสดุ</title>
+<style>
+  /* ─── Tokens ─── */
+  :root {
+    --g900: #1a3a1a;
+    --g700: #2d6a2d;
+    --g500: #4a9e4a;
+    --g300: #a8d5a2;
+    --g100: #e8f5e4;
+    --g50:  #f4faf2;
+    --cream: #fafff8;
+    --text: #1a2e1a;
+    --muted: #5a7a5a;
+    --border: #c5dfc0;
+    --radius: 10px;
+    --shadow: 0 2px 12px rgba(45,106,45,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Sarabun', 'Noto Sans Thai', sans-serif;
+    background: var(--g50);
+    color: var(--text);
+    font-size: 15px;
+    min-height: 100vh;
+  }
+
+  /* ─── Screen UI ─── */
+  @media screen {
+    .screen-wrapper {
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 0 0 80px;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--g700) 0%, var(--g500) 100%);
+      color: white;
+      padding: 18px 20px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+    }
+
+    .logo-badge {
+      width: 44px; height: 44px;
+      background: white;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    header h1 { font-size: 17px; font-weight: 700; line-height: 1.3; }
+    header p  { font-size: 11px; opacity: 0.85; margin-top: 2px; }
+
+    .section-card {
+      background: white;
+      border-radius: var(--radius);
+      margin: 12px 14px 0;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .section-header {
+      background: var(--g100);
+      border-bottom: 1.5px solid var(--border);
+      padding: 10px 14px;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--g700);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-header .dot {
+      width: 8px; height: 8px;
+      background: var(--g500);
+      border-radius: 50%;
+    }
+
+    .section-body { padding: 14px; }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 4px;
+      margin-top: 12px;
+    }
+
+    label:first-child { margin-top: 0; }
+
+    select, input[type="text"], input[type="date"], textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--cream);
+      transition: border-color .2s;
+      -webkit-appearance: none;
+    }
+
+    select:focus, input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--g500);
+      background: white;
+    }
+
+    textarea { resize: vertical; min-height: 70px; }
+
+    /* ─── Category tabs ─── */
+    .cat-tabs {
+      display: flex;
+      overflow-x: auto;
+      gap: 6px;
+      padding: 12px 14px 0;
+      scrollbar-width: none;
+    }
+    .cat-tabs::-webkit-scrollbar { display: none; }
+
+    .cat-tab {
+      flex-shrink: 0;
+      padding: 7px 14px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      font-size: 12px;
+      font-weight: 600;
+      background: white;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .cat-tab.active {
+      background: var(--g700);
+      color: white;
+      border-color: var(--g700);
+    }
+
+    /* ─── Item rows ─── */
+    .items-list { padding: 6px 14px 14px; }
+
+    .item-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--g100);
+    }
+    .item-row:last-child { border-bottom: none; }
+
+    .item-name {
+      flex: 1;
+      font-size: 13.5px;
+      line-height: 1.35;
+    }
+
+    .qty-control {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .qty-btn {
+      width: 32px; height: 32px;
+      background: var(--g100);
+      border: none;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--g700);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      touch-action: manipulation;
+    }
+    .qty-btn:active { background: var(--g300); }
+
+    .qty-input {
+      width: 40px; height: 32px;
+      border: none;
+      border-left: 1.5px solid var(--border);
+      border-right: 1.5px solid var(--border);
+      border-radius: 0;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+      background: white;
+      color: var(--text);
+      padding: 0;
+    }
+    .qty-input:focus { outline: none; background: #f0faf0; }
+
+    /* ─── Action bar ─── */
+    .action-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: white;
+      border-top: 1.5px solid var(--border);
+      padding: 10px 14px;
+      display: flex;
+      gap: 10px;
+      max-width: 540px;
+      margin: 0 auto;
+      z-index: 200;
+    }
+
+    .btn-preview {
+      flex: 1;
+      padding: 13px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      border: 2px solid var(--g700);
+      background: white;
+      color: var(--g700);
+      transition: all .2s;
+    }
+    .btn-print {
+      flex: 2;
+      padding: 13px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      background: linear-gradient(135deg, var(--g700), var(--g500));
+      color: white;
+      transition: all .2s;
+    }
+    .btn-print:active { opacity: 0.85; }
+    .btn-preview:active { background: var(--g100); }
+
+    /* ─── Preview modal ─── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 300;
+      overflow-y: auto;
+      padding: 20px 10px;
+    }
+    .modal-overlay.open { display: block; }
+    .modal-close-bar {
+      text-align: right;
+      max-width: 800px;
+      margin: 0 auto 8px;
+    }
+    .modal-close-bar button {
+      background: white;
+      border: none;
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 13px;
+    }
+  }
+
+  /* ─── Print document (shown in modal + on print) ─── */
+  .print-doc {
+    background: white;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .doc-inner {
+    padding: 18px 22px 16px;
+    font-size: 12px;
+    color: #111;
+  }
+
+  /* Header */
+  .doc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 2.5px solid #2d6a2d;
+    padding-bottom: 12px;
+    margin-bottom: 10px;
+    gap: 10px;
+  }
+
+  .doc-logo-area { display: flex; align-items: center; gap: 10px; }
+
+  .doc-logo-circle {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: #e8f5e4;
+    border: 2px solid #4a9e4a;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+
+  .doc-company { line-height: 1.5; }
+  .doc-company strong { font-size: 13px; color: #2d6a2d; }
+  .doc-company p { font-size: 10px; color: #444; }
+
+  .doc-title-box {
+    border: 2px solid #2d6a2d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    text-align: center;
+    min-width: 130px;
+  }
+  .doc-title-box strong { font-size: 13px; color: #2d6a2d; display: block; line-height: 1.5; }
+
+  /* Meta grid */
+  .doc-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 16px;
+    margin-bottom: 10px;
+    border: 1px solid #c5dfc0;
+    border-radius: 6px;
+    padding: 8px 12px;
+    background: #f4faf2;
+  }
+  .doc-meta-item { font-size: 11px; }
+  .doc-meta-item span { font-weight: 700; color: #2d6a2d; }
+
+  /* Status box */
+  .doc-status {
+    display: flex;
+    gap: 12px;
+    border: 1px solid #c5dfc0;
+    border-radius: 6px;
+    padding: 6px 12px;
+    background: #f4faf2;
+    margin-bottom: 10px;
+    font-size: 11px;
+    align-items: center;
+  }
+  .doc-status label { display: flex; align-items: center; gap: 4px; cursor: default; }
+  .doc-status input[type=checkbox] { accent-color: #2d6a2d; width: 13px; height: 13px; }
+
+  /* Items table */
+  .doc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+  .doc-table th {
+    background: #2d6a2d;
+    color: white;
+    padding: 5px 6px;
+    text-align: center;
+    font-weight: 700;
+  }
+  .doc-table th:first-child { text-align: left; border-radius: 0; }
+  .doc-table td {
+    padding: 4px 6px;
+    border-bottom: 1px solid #d4ead0;
+    border-right: 1px solid #d4ead0;
+    vertical-align: middle;
+  }
+  .doc-table td:last-child { border-right: none; }
+  .doc-table tr:nth-child(even) td { background: #f4faf2; }
+  .doc-table .num { text-align: center; }
+  .doc-table .cat-row td {
+    background: #e8f5e4 !important;
+    font-weight: 700;
+    font-size: 10.5px;
+    color: #2d6a2d;
+    padding: 3px 6px;
+  }
+
+  /* Notes */
+  .doc-notes {
+    border: 1px solid #c5dfc0;
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    font-size: 11px;
+  }
+  .doc-notes strong { color: #2d6a2d; display: block; margin-bottom: 4px; }
+  .doc-notes p { color: #333; white-space: pre-wrap; min-height: 28px; }
+
+  /* Instructions */
+  .doc-instructions {
+    font-size: 10px;
+    color: #555;
+    border-top: 1px solid #d4ead0;
+    padding-top: 6px;
+    margin-bottom: 10px;
+    line-height: 1.6;
+  }
+
+  /* Signatures */
+  .doc-sigs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    text-align: center;
+  }
+  .doc-sig { font-size: 10px; color: #333; }
+  .doc-sig .sig-line {
+    border-top: 1.5px solid #2d6a2d;
+    margin: 20px auto 4px;
+    width: 80%;
+  }
+  .doc-sig .sig-label { font-weight: 700; color: #2d6a2d; font-size: 11px; }
+  .doc-sig .sig-date { color: #666; margin-top: 2px; }
+
+  /* ─── Print styles ─── */
+  @media print {
+    @page { size: A4; margin: 10mm 12mm; }
+
+    body { background: white; font-size: 11px; }
+
+    header, .cat-tabs, .items-list, .section-card,
+    .action-bar, .modal-overlay, .modal-close-bar,
+    .screen-wrapper > *:not(#modal-overlay) { display: none !important; }
+
+    .modal-overlay { display: block !important; position: static !important; background: none !important; padding: 0 !important; }
+    .modal-close-bar { display: none !important; }
+
+    .print-doc {
+      max-width: 100%;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .doc-inner { padding: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ SCREEN UI ═══════════════ -->
+<div class="screen-wrapper">
+
+  <header>
+    <div class="logo-badge">🥥</div>
+    <div>
+      <h1>Long Codo</h1>
+      <p>ระบบใบกำกับการรับ-ส่งวัตถุดิบ</p>
+    </div>
+  </header>
+
+  <!-- Info section -->
+  <div class="section-card">
+    <div class="section-header"><span class="dot"></span>ข้อมูลการส่ง</div>
+    <div class="section-body">
+
+      <label>สาขาผู้รับ</label>
+      <select id="branch">
+        <option value="">-- เลือกสาขา --</option>
+        <option value="สาขา 1 – ปตท. มีนบุรี-สุวินทวงศ์ (ขาออก)">สาขา 1 – ปตท. มีนบุรี-สุวินทวงศ์ (ขาออก)</option>
+        <option value="สาขา 2 – ปตท. สุวินทวงศ์ กม. 36 (ขาเข้า)">สาขา 2 – ปตท. สุวินทวงศ์ กม. 36 (ขาเข้า)</option>
+        <option value="สาขา 3 – ปั๊มน้ำมันบางจาก สุขาภิบาล 3 (ขาเข้า)">สาขา 3 – ปั๊มน้ำมันบางจาก สุขาภิบาล 3 (ขาเข้า)</option>
+        <option value="สาขา 4 – OR Space รามคำแหง">สาขา 4 – OR Space รามคำแหง</option>
+      </select>
+
+      <label>ชื่อพนักงานผู้ส่ง</label>
+      <input type="text" id="sender" placeholder="ระบุชื่อ">
+
+      <label>ชื่อพนักงานประจำสาขา (ผู้รับ)</label>
+      <input type="text" id="receiver" placeholder="ระบุชื่อ">
+
+      <label>วันที่ส่ง</label>
+      <input type="date" id="senddate">
+
+      <label>สถานะเอกสาร</label>
+      <select id="docstatus">
+        <option value="ส่งพัสดุ">ส่งพัสดุ</option>
+        <option value="รับพัสดุ">รับพัสดุ</option>
+      </select>
+
+    </div>
+  </div>
+
+  <!-- Category tabs -->
+  <div class="cat-tabs" id="catTabs"></div>
+
+  <!-- Items list -->
+  <div class="section-card" style="margin-top:10px;">
+    <div class="section-header"><span class="dot"></span>รายการวัตถุดิบ</div>
+    <div class="items-list" id="itemsList"></div>
+  </div>
+
+  <!-- Notes -->
+  <div class="section-card">
+    <div class="section-header"><span class="dot"></span>หมายเหตุเพิ่มเติม</div>
+    <div class="section-body">
+      <textarea id="notes" placeholder="พิมพ์หมายเหตุหรือรายละเอียดเพิ่มเติม..."></textarea>
+    </div>
+  </div>
+
+  <!-- Spacer for fixed bar -->
+  <div style="height:10px"></div>
+
+</div><!-- /screen-wrapper -->
+
+<!-- Action bar -->
+<div class="action-bar">
+  <button class="btn-preview" onclick="openPreview()">👁 ดูตัวอย่าง</button>
+  <button class="btn-print"   onclick="doPrint()">🖨 พิมพ์เอกสาร</button>
+</div>
+
+<!-- ═══════════════ MODAL PREVIEW ═══════════════ -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-close-bar">
+    <button onclick="closePreview()">✕ ปิด</button>
+  </div>
+  <!-- Print doc lives here -->
+  <div class="print-doc" id="printDoc">
+    <div class="doc-inner" id="docInner"></div>
+  </div>
+</div>
+
+<script>
+/* ── Data ── */
+const CATEGORIES = {
+  "มะพร้าว": ["มะพร้าว", "อโวคาโด", "แกลลอนใส่น้ำมะพร้าว"],
+  "บรรจุภัณฑ์": [
+    "ขวด 250 ml + ฝา",
+    "ขวด 200 ml + ฝาขาว + ฝาทอง",
+    "ขวด 1000 ml + ฝา",
+    "แก้ว",
+    "ฝาโดม",
+    "ฝาฮาฟ",
+    "ถ้วยพุดดิ้ง",
+  ],
+  "ถุง/หลอด": [
+    "ถุงหิ้ว 12x20",
+    "ถุงหิ้ว 8x16",
+    "ถุงหิ้ว 6x14",
+    "ถุงเดี่ยว",
+    "ถุงคู่",
+    "ถุงขยะดำ",
+    "หลอดเขียวปลายช้อน",
+    "หลอดน้ำตาลทอง",
+    "หลอดขาวเล็ก",
+    "ช้อนไอติม",
+    "ถุงมือ",
+  ],
+  "สติกเกอร์/กระดาษ": [
+    "สติกเกอร์ พุดดิ้ง",
+    "สติกเกอร์ อโวคาโดพร้อมดื่ม",
+    "สติกเกอร์ น้ำมะพร้าว",
+    "สติกเกอร์ปิดฝา",
+    "กระดาษจดเมนู",
+    "กระดาษใบเสร็จ",
+    "แม็กเย็บกระดาษ",
+    "ลูกแม็ก",
+    "ทิชชู่",
+  ],
+  "วัตถุดิบ": [
+    "น้ำเชื่อม",
+    "นมข้นหวาน",
+    "ครีมเมอร์",
+    "นมข้นจืด",
+    "นมสด",
+    "น้ำผึ้ง",
+    "หญ้าหวาน",
+    "เม็ดแมงลัก",
+    "งาดำ",
+    "ผงวุ้น",
+    "น้ำตาลทราย",
+    "ปีโป้",
+    "ลิควิด",
+    "ขนมปังกรอบรสต่างๆ",
+  ],
+  "น้ำยา/ของใช้": [
+    "น้ำยาเช็ดกระจก",
+    "น้ำยาล้างจาน",
+    "น้ำยาซักผ้า",
+    "น้ำยาถูพื้น",
+    "น้ำบ่อดัก",
+    "ยาฆ่ามด",
+  ],
+};
+
+const ALL_CATS = Object.keys(CATEGORIES);
+let activeCat = ALL_CATS[0];
+const quantities = {}; // item name → qty
+
+/* Init default date */
+document.getElementById('senddate').valueAsDate = new Date();
+
+/* ── Build category tabs ── */
+function buildTabs() {
+  const el = document.getElementById('catTabs');
+  el.innerHTML = '';
+  ALL_CATS.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-tab' + (cat === activeCat ? ' active' : '');
+    btn.textContent = cat;
+    btn.onclick = () => { activeCat = cat; buildTabs(); buildItems(); };
+    el.appendChild(btn);
+  });
+}
+
+/* ── Build item rows ── */
+function buildItems() {
+  const el = document.getElementById('itemsList');
+  el.innerHTML = '';
+  const items = CATEGORIES[activeCat];
+  items.forEach(name => {
+    if (!quantities[name]) quantities[name] = 0;
+    const row = document.createElement('div');
+    row.className = 'item-row';
+    row.innerHTML = `
+      <div class="item-name">${name}</div>
+      <div class="qty-control">
+        <button class="qty-btn" onclick="changeQty('${name}', -1)">−</button>
+        <input class="qty-input" type="number" min="0" value="${quantities[name]}"
+          onchange="setQty('${name}', this.value)" id="qty_${name.replace(/\s/g,'_')}">
+        <button class="qty-btn" onclick="changeQty('${name}', 1)">+</button>
+      </div>`;
+    el.appendChild(row);
+  });
+}
+
+function changeQty(name, delta) {
+  quantities[name] = Math.max(0, (quantities[name]||0) + delta);
+  const el = document.getElementById('qty_' + name.replace(/\s/g,'_'));
+  if (el) el.value = quantities[name];
+}
+
+function setQty(name, val) {
+  quantities[name] = Math.max(0, parseInt(val)||0);
+}
+
+/* ── Build print document HTML ── */
+function buildDocHTML() {
+  const branch   = document.getElementById('branch').value || '–';
+  const sender   = document.getElementById('sender').value || '–';
+  const receiver = document.getElementById('receiver').value || '–';
+  const date     = document.getElementById('senddate').value
+    ? new Date(document.getElementById('senddate').value).toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'})
+    : '–';
+  const docstatus = document.getElementById('docstatus').value;
+  const notes     = document.getElementById('notes').value;
+
+  // Build rows grouped by category, skip empty
+  let rowsHTML = '';
+  let num = 1;
+  ALL_CATS.forEach(cat => {
+    const items = CATEGORIES[cat].filter(n => quantities[n] > 0);
+    if (!items.length) return;
+    rowsHTML += `<tr class="cat-row"><td colspan="3">${cat}</td><td></td><td></td><td></td><td></td></tr>`;
+    items.forEach(name => {
+      rowsHTML += `<tr>
+        <td class="num">${num++}</td>
+        <td>${name}</td>
+        <td class="num">${quantities[name]}</td>
+        <td class="num"></td>
+        <td class="num"></td>
+        <td class="num"></td>
+        <td></td>
+      </tr>`;
+    });
+  });
+  // Add 5 blank rows
+  for (let i = 0; i < 5; i++) {
+    rowsHTML += `<tr><td class="num">&nbsp;</td><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>`;
+  }
+
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2.5px solid #2d6a2d;padding-bottom:10px;margin-bottom:10px;gap:10px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:52px;height:52px;border-radius:50%;background:#e8f5e4;border:2px solid #4a9e4a;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🥥</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#2d6a2d;">Long Codo (สำนักงานใหญ่)</div>
+          <div style="font-size:10px;color:#444;margin-top:2px;">ที่ตั้ง : 83 ซอยสามวา 20 แขวงบางชัน เขตคลองสามวา กรุงเทพมหานคร 10510</div>
+          <div style="font-size:10px;color:#444;">โทร : 094-545-2698 หรือ 086-757-7165  อีเมล์ : longhom.no1@gmail.com</div>
+          <div style="font-size:10px;color:#444;">เลขประจำตัวผู้เสียภาษี : 0105566138640</div>
+        </div>
+      </div>
+      <div style="border:2px solid #2d6a2d;border-radius:6px;padding:8px 16px;text-align:center;min-width:120px;">
+        <div style="font-weight:700;color:#2d6a2d;font-size:13px;line-height:1.6;">ใบกำกับการรับ /<br>ส่งพัสดุ</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;border:1px solid #c5dfc0;border-radius:6px;padding:8px 12px;background:#f4faf2;margin-bottom:8px;font-size:11px;">
+      <div><span style="font-weight:700;color:#2d6a2d;">ชื่อร้าน/สาขา : </span>${branch}</div>
+      <div><span style="font-weight:700;color:#2d6a2d;">วันที่ส่ง : </span>${date}</div>
+      <div><span style="font-weight:700;color:#2d6a2d;">ผู้ส่ง : </span>${sender}</div>
+      <div><span style="font-weight:700;color:#2d6a2d;">ผู้รับ (พนักงานสาขา) : </span>${receiver}</div>
+      <div style="grid-column:span 2;display:flex;align-items:center;gap:16px;">
+        <span style="font-weight:700;color:#2d6a2d;">สถานะ : </span>
+        <label style="display:flex;align-items:center;gap:4px;"><input type="checkbox" ${docstatus==='รับพัสดุ'?'checked':''} disabled> รับพัสดุ</label>
+        <label style="display:flex;align-items:center;gap:4px;"><input type="checkbox" ${docstatus==='ส่งพัสดุ'?'checked':''} disabled> ส่งพัสดุ</label>
+      </div>
+    </div>
+
+    <table class="doc-table">
+      <thead>
+        <tr>
+          <th style="width:28px">ลำดับ</th>
+          <th style="text-align:left">รายละเอียด</th>
+          <th style="width:42px">จำนวนสั่ง</th>
+          <th style="width:36px">เกิน</th>
+          <th style="width:36px">ขาด</th>
+          <th style="width:46px">เสียหาย</th>
+          <th style="width:80px">หมายเหตุ</th>
+        </tr>
+      </thead>
+      <tbody>${rowsHTML}</tbody>
+    </table>
+
+    <div style="border:1px solid #c5dfc0;border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:11px;">
+      <strong style="color:#2d6a2d;">หมายเหตุ :</strong>
+      <p style="white-space:pre-wrap;margin-top:4px;min-height:24px;">${notes || ''}</p>
+    </div>
+
+    <div style="font-size:10px;color:#555;border-top:1px solid #d4ead0;padding-top:6px;margin-bottom:10px;line-height:1.8;">
+      1. ผู้ตรวจสอบต้องตรวจสอบสภาพ จำนวน เอกสารใบรับประกัน หรืออื่นๆ (ถ้ามี) และลงชื่อผู้ตรวจสอบก่อนการขนส่ง<br>
+      2. หากพบสินค้าหรือพัสดุผิดปกติก่อนการขนส่ง ต้องแจ้งให้ผู้อนุมัติส่ง และหัวหน้างานรับทราบก่อนรับพัสดุ พร้อมทั้งถ่ายรูปไว้เป็นหลักฐาน
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;font-size:10px;">
+      ${['ผู้อนุมัติส่ง','ผู้ตรวจสอบ','พนักงานขับรถ','ผู้รับพัสดุ'].map(r=>`
+        <div>
+          <div style="font-weight:700;color:#2d6a2d;font-size:11px;margin-bottom:18px;">${r}</div>
+          <div style="border-top:1.5px solid #2d6a2d;width:80%;margin:0 auto 4px;"></div>
+          <div style="color:#666;">(........../........../..........)</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+/* ── Open/close modal ── */
+function openPreview() {
+  document.getElementById('docInner').innerHTML = buildDocHTML();
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closePreview() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+/* ── Print ── */
+function doPrint() {
+  document.getElementById('docInner').innerHTML = buildDocHTML();
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(() => window.print(), 300);
+}
+
+/* ── Init ── */
+buildTabs();
+buildItems();
+</script>
+</body>
+</html>
